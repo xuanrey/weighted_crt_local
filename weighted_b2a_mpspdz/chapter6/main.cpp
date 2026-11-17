@@ -149,25 +149,35 @@ int main(int argc,char** argv){umask(0077);try{
     auto auxiliary=VirtualKeyGen(vector<int>(n,1),n);
     double aux_offline=ch5::elapsed(aux_start);
     for(auto& owner:auxiliary.owner_keys)owner[0].local_party_.x_=BN::ZERO;
-    ofstream results(root/"results.csv");results<<"stage,name,VSS,VSC_offline,VSC_online,Figure10_extra,DKG_total,GG18_aux_offline,sign_total,status\n"<<setprecision(17);
-    results<<"dkg,dkg,"<<vss<<","<<offline_seconds+offline_setup<<","<<c8+c9<<","<<extra<<","<<vss+c8+c9+extra<<","<<aux_offline<<",,passed\n";results.flush();
-    cout<<fixed<<setprecision(9)<<"VSS: "<<vss<<" s\nVSC offline: "<<offline_seconds+offline_setup<<" s\nVSC online: "<<c8+c9<<" s\nFigure 10 additional: "<<extra<<" s\nDKG total: "<<vss+c8+c9+extra<<" s\nGG18 auxiliary (offline): "<<aux_offline<<" s\nOffline total: "<<offline_seconds+offline_setup+aux_offline<<" s"<<endl;
-    ifstream plan(root/"sign_plan.txt");string name,ids_csv,message;
+    ofstream results(root/"results.csv");results<<"stage,name,VSS,VSC_offline,VSC_online,Figure10_extra,DKG_total,GG18_aux_offline,GG18_aux_ms,gg18_sign,sign_total,status\n"<<setprecision(17);
+    results<<"dkg,dkg,"<<vss<<","<<offline_seconds+offline_setup<<","<<c8+c9<<","<<extra<<","<<vss+c8+c9+extra<<","<<aux_offline<<","<<aux_offline*1000.0<<",,,passed\n";results.flush();
+    cout<<fixed<<setprecision(9)<<"VSS: "<<vss<<" s\nVSC offline: "<<offline_seconds+offline_setup<<" s\nVSC online: "<<c8+c9<<" s\nFigure 10 additional: "<<extra<<" s\nDKG total: "<<vss+c8+c9+extra<<" s\nGG18 auxiliary (one-time, reusable): "<<aux_offline*1000.0<<" ms\nOffline total: "<<offline_seconds+offline_setup+aux_offline<<" s"<<endl;
+    ifstream plan(root/"sign_plan.txt");string name,ids_csv,message;int signed_sessions=0;
     while(plan>>name>>ids_csv>>message){
         auto ids=parse_list(ids_csv);set<int> seen;int weight=0;
         for(int id:ids){require(id>=0 && id<n && seen.insert(id).second,"Invalid signing IDs");weight+=p.parties[id].weight;}
-        if(weight<p.reconstruction_threshold || ids.size()<2){cout<<name<<": expected unauthorized-set rejection"<<endl;results<<"sign,"<<name<<",,,,,,,,rejected\n";continue;}
+        if(weight<p.reconstruction_threshold || ids.size()<2){cout<<name<<": expected unauthorized-set rejection"<<endl;results<<"sign,"<<name<<",,,,,,,,,,rejected\n";continue;}
+        double vsc_offline=0;{ifstream f(root/name/"offline_seconds.txt");f>>vsc_offline;require(bool(f),"Missing VSC preprocessing timer for "+name);}
         vector<int> deg;vector<AuthElement> sd;for(int id:ids){deg.push_back(p.parties[id].weight);sd.push_back(delta[id]);}
         auto sp=ch5::load_preprocessing(root/name/"preprocessing",deg,weight-p.reconstruction_threshold,p.m0.degree(),ORDER,sid+"-"+name);
         rebase_preprocessing(sp,sd);auto bound=select_auth(retained,ids);
         // Negative tests verify binding before any masked output is opened.
         auto bad=bound;bad[0].value[0]^=1;bool rejected=false;try{ch5::verify(bad[0],0,sp);}catch(const exception&){rejected=true;}require(rejected,"Tampered CRT share accepted");
+        // VSC online: Figure 8 SETUP, the two conversions, and the public/MAC check.
+        start=Clock::now();
         auto state=setup_bound(p,ids,bound,sp);
-        start=Clock::now();auto bu=ch5::figure8::convert(state,sp);auto bs=ch5::figure9::setup(bu,sp);auto bo=ch5::figure9::convert(bs,sp);
+        auto bu=ch5::figure8::convert(state,sp);auto bs=ch5::figure9::setup(bu,sp);auto bo=ch5::figure9::convert(bs,sp);
         check_public(bo,sp,&Y);
+        double vsc_online=ch5::elapsed(start);
+        // GG18: Shamir adaptation, signing rounds and signature verification.
+        start=Clock::now();
         auto keys=adapt_additive(auxiliary,ids,bo,Y,sp.sid);sign_and_verify(keys,message,root/name/"signature.json");
-        double seconds=ch5::elapsed(start);results<<"sign,"<<name<<",,,,,,,"<<seconds<<",passed\n";results.flush();cout<<name<<" sign: "<<seconds<<" s; verified against DKG public key"<<endl;
+        double gg18_sign=ch5::elapsed(start);
+        double sign_total=vsc_online+gg18_sign;++signed_sessions;
+        results<<"sign,"<<name<<",,"<<vsc_offline<<","<<vsc_online<<",,,,"<<aux_offline*1000.0<<","<<gg18_sign<<","<<sign_total<<",passed\n";results.flush();
+        cout<<fixed<<setprecision(9)<<name<<" sign: total "<<sign_total<<" s = VSC offline "<<vsc_offline<<" s + VSC online "<<vsc_online<<" s + GG18 "<<gg18_sign<<" s; verified against DKG public key"<<endl;
     }
+    if(signed_sessions>0)cout<<fixed<<setprecision(9)<<"GG18 auxiliary, one-time and reusable: "<<aux_offline*1000.0<<" ms; amortized over "<<signed_sessions<<" signature(s): "<<aux_offline*1000.0/signed_sessions<<" ms/signature"<<endl;
     return 0;
 }catch(const exception& e){cerr<<"Chapter 6 failed: "<<e.what()<<endl;return 1;}}
 

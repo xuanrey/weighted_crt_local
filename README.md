@@ -114,15 +114,26 @@ case_01/
 
 ```
 stage,name,VSS,VSC_offline,VSC_online,Figure10_extra,DKG_total,
-GG18_aux_offline,sign_total,status
+GG18_aux_offline,GG18_aux_ms,gg18_sign,sign_total,status
 ```
 
-`DKG_total = VSS + VSC_online + Figure10_extra`. VSS is the sum of the per-dealer
-Share timers, a serial cost model; `vss_wall_seconds.txt` holds the measured
-elapsed time when dealers run concurrently. `VSC_offline` covers MASCOT
-preprocessing plus the Figure 8/9 setup and is *not* part of `DKG_total`.
-`GG18_aux_offline` is the one-time Paillier and range-proof material, shared by
-every signing session.
+The DKG row fills `DKG_total = VSS + VSC_online + Figure10_extra`. VSS is the sum
+of the per-dealer Share timers, a serial cost model; `vss_wall_seconds.txt` holds
+the measured elapsed time when dealers run concurrently.
+
+A signing row splits the session into parts:
+
+| Column | Covers |
+|---|---|
+| `VSC_offline` | MASCOT preprocessing for this session |
+| `VSC_online` | Figure 8 SETUP, both conversions, the public-key/MAC check |
+| `gg18_sign` | Shamir adaptation, GG18 signing rounds, signature verification |
+| `sign_total` | `VSC_online + gg18_sign`, excluding this session's preprocessing |
+
+`GG18_aux_offline` (seconds) and `GG18_aux_ms` (milliseconds) report the same
+one-time Paillier and range-proof setup. It is shared by every signing session
+and therefore reusable; it is not part of any per-signature figure. The program
+prints the amortised value once all sessions finish.
 
 ## Other entry points
 
