@@ -1,0 +1,19 @@
+**/runs/
+**/build/
+**/__pycache__/
+**/*.pyc
+**/*.log
+!**/validation/*.log
+**/preprocessing/
+**/Player-Data/
+deps/
+MP-SPDZ*/
+weighted_b2a_mpspdz5/
+weighted_b2a_mpspdz6/
+weighted_b2a_mpspdz7/
+.vscode/
+INSTALL.md
+
+# Only the root README is published. Per-module notes stay local.
+weighted_b2a_mpspdz/**/*.md
+!weighted_b2a_mpspdz/gg18/THIRD_PARTY_NOTICES.md

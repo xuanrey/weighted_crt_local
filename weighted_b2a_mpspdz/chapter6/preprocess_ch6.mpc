@@ -1,0 +1,41 @@
+# Hybrid preprocessing: BDOZ is attached by a TRUSTED local process after MPC.
+# Same correlations/records as Chapter 5, with runtime loops to bound compiler RAM.
+from Compiler.types import sint
+from Compiler.library import print_ln_to, check_point, start_timer, stop_timer, for_range
+DEGREES=list(map(int,program.args[1].split(',')))
+H,D0=map(int,program.args[2:4]);N=len(DEGREES);Q=int(program.options.prime)
+if N<2 or H<0 or D0<(Q-1).bit_length():raise ValueError('Invalid dimensions')
+CHUNK=min(32,Q.bit_length()-1)
+def xor(a,b):return a+b-2*a*b
+def emit(i,label,value,*indices):print_ln_to(i,label+'=%s',*(list(indices)+[value.reveal_to(i)]))
+def emit128(i,label,bits,*indices):
+    for off in range(0,128,CHUNK):
+        emit(i,label+'_'+str(off),sum((2**k)*bits[off+k] for k in range(min(CHUNK,128-off))),*indices)
+start_timer(10)
+alpha=[sint.get_random() for i in range(N)];alpha_sum=sum(alpha)
+for i in range(N):emit(i,'ALPHA',alpha[i])
+check_point();stop_timer(10)
+
+def random_bits(kind,i,length):
+    bits=sint.Array(length)
+    @for_range(length)
+    def fill(k):
+        bits[k]=sint.get_random_bit();emit(i,kind+'_B_%s',bits[k],k)
+    return bits
+start_timer(11)
+for i,d in enumerate(DEGREES):
+    bits=random_bits('R',i,d)
+check_point();stop_timer(11)
+def dabits(kind,length):
+    if length==0:return
+    b=[random_bits(kind,i,length) for i in range(N)]
+    @for_range(length)
+    def convert(k):
+        bit=b[0][k]
+        for i in range(1,N):bit=xor(bit,b[i][k])
+        a=[sint.get_random() for _ in range(N-1)];a.append(bit-sum(a))
+        g=[sint.get_random() for _ in range(N-1)];g.append(alpha_sum*bit-sum(g))
+        for i in range(N):emit(i,kind+'_A_%s',a[i],k);emit(i,kind+'_G_%s',g[i],k)
+start_timer(12);dabits('Z',H);check_point();stop_timer(12)
+start_timer(13);dabits('B',D0);check_point();stop_timer(13)
+check_point()
