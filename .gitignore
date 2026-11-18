@@ -17,3 +17,9 @@ INSTALL.md
 # Only the root README is published. Per-module notes stay local.
 weighted_b2a_mpspdz/**/*.md
 !weighted_b2a_mpspdz/gg18/THIRD_PARTY_NOTICES.md
+
+# Internal notes and standalone tests are not part of the released artifact.
+LOCAL_BDOZ.md
+weighted_b2a_mpspdz/run_chapter5.sh
+weighted_b2a_mpspdz/chapter6/test_*
+weighted_b2a_mpspdz/chapter6/prep_estimate.py
