@@ -150,35 +150,9 @@ prints the amortised value once all sessions finish.
 - The GG18 auxiliary material comes from an unmodified key generation over
   physical parties; its unrelated ECDSA shares are discarded and replaced.
 
+
 ## Third-party licences and notices
 
-This artifact links against Safeheron's GG18 implementation. Their licence
-requires a prominent notice with every copy, and requires the resulting program
-to carry the same notice and the same Non-Commercial restriction.
+**GG18 — Non-Commercial Use only.** This artifact’s GG18 backend uses Safeheron’s [multi-party-sig-cpp](https://github.com/Safeheron/multi-party-sig-cpp/blob/e848e9353a6b59277e77f4b3060cb5ca608c7e00/LICENSE) (copyright © 2023 Safeheron Inc.) and [safeheron-crypto-suites-cpp](https://github.com/Safeheron/safeheron-crypto-suites-cpp/blob/c05c0907ac6875ce4e1f5bbb4fcababcca5c71cf/LICENSE) (copyright © 2022 Safeheron Inc.). Each copy of the resulting program must prominently retain this notice. The resulting program and its copies, modifications, distributions, and derivatives are subject to the same notice requirement and Non-Commercial Use restriction under the linked licences. For licensing enquiries, contact <safeheron.license@safeheron.com>.
 
-**Notice.** The GG18 backend uses *multi-party-sig-cpp*, copyright Safeheron
-Inc. 2023, and *safeheron-crypto-suites-cpp*, copyright Safeheron Inc. 2022.
-Both are licensed for **Non-Commercial Use only**. This artifact, together with
-any copy, modification, distribution or derivative of it, is therefore subject
-to the same notice requirement and the same Non-Commercial Use restriction.
-
-| Component | Revision used | Licence |
-|---|---|---|
-| [multi-party-sig-cpp](https://github.com/Safeheron/multi-party-sig-cpp) | `e848e9353a6b59277e77f4b3060cb5ca608c7e00` | [Safeheron Non-Commercial](https://github.com/Safeheron/multi-party-sig-cpp/blob/main/LICENSE) |
-| [safeheron-crypto-suites-cpp](https://github.com/Safeheron/safeheron-crypto-suites-cpp) | `c05c0907ac6875ce4e1f5bbb4fcababcca5c71cf` | [Safeheron Non-Commercial](https://github.com/Safeheron/safeheron-crypto-suites-cpp/blob/main/LICENSE) |
-| [Protobuf](https://github.com/protocolbuffers/protobuf) | v3.20.3 | [BSD-3-Clause](https://github.com/protocolbuffers/protobuf/blob/v3.20.3/LICENSE) |
-| [MP-SPDZ](https://github.com/data61/MP-SPDZ) | separate checkout | [CSIRO BSD-3-Clause](https://github.com/data61/MP-SPDZ/blob/master/License.txt) |
-
-None of these libraries are vendored in this repository. `gg18/setup_gg18.sh`
-clones the two Safeheron revisions above and builds Protobuf from its tagged
-release; MP-SPDZ must be installed separately. Each keeps its own upstream
-licence.
-
-The adapter under `gg18/` is an independent research integration. It is neither
-endorsed by Safeheron nor covered by Safeheron's security audit.
-
-MP-SPDZ asks that use for scientific publication or commercial purposes be
-reported to its copyright holders for impact monitoring. That is a reporting
-request, not a restriction on use.
-
-Licence questions about the Safeheron components: safeheron.license@safeheron.com.
+**MP-SPDZ.** This artifact uses a separate installation of [MP-SPDZ](https://github.com/data61/MP-SPDZ/blob/master/License.txt), which is licensed by CSIRO under BSD-3-Clause and includes components with their own notices. The University of Bristol notice requests reporting use for scientific publications or commercial purposes for impact and usage monitoring. See `License.txt` in the MP-SPDZ checkout used for the applicable notices and reporting details.
