@@ -1,6 +1,0 @@
-VSC + Figure 10 + bad group MAC: PASS
-sign 1: PASS (same DKG key, fresh session, tamper/reuse rejection)
-sign 2: PASS (same DKG key, fresh session, tamper/reuse rejection)
-sign 3: PASS (same DKG key, fresh session, tamper/reuse rejection)
-Unauthorized set: PASS
-Reconstruction calls: NONE

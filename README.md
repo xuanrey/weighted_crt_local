@@ -149,4 +149,4 @@ prints the amortised value once all sessions finish.
   simulator operation, not a cross-key protocol.
 - The GG18 auxiliary material comes from an unmodified key generation over
   physical parties; its unrelated ECDSA shares are discarded and replaced.
-- `GG18` sources keep their own licences, see `gg18/THIRD_PARTY_NOTICES.md`.
+- The Safeheron components under `gg18/` keep their own upstream licences.
